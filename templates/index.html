@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Вешалки</title>
+</head>
+
+<body>
+
+    <h2>Анализ вешалок</h2>
+    <hr>
+    <h3>Фото</h3>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="sendImage()">Анализ фото</button>
+    <br><br>
+    <img id="img" width="500">
+    <p id="text"></p>
+    <hr>
+    <h3>Видео</h3>
+    <input type="file" id="videoInput" accept="video/*">
+    <button onclick="sendVideo()">Анализ видео</button>
+    <br><br>
+    <video id="video" width="500" controls></video>
+    <p id="videoText"></p>
+
+<script>
+
+    async function sendImage() {
+        const file = document.getElementById("imageInput").files[0];
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await fetch("/process", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        document.getElementById("img").src =
+            data.image_url + "?t=" + new Date().getTime();
+
+        document.getElementById("text").innerText =
+            "Вешалки: " + (data.hanger_present ? "обнаружены" : "не найдены") +
+            " | объектов: " + data.count;
+    }
+
+
+    async function sendVideo() {
+        const file = document.getElementById("videoInput").files[0];
+
+        const formData = new FormData();
+        formData.append("video", file);
+
+        const res = await fetch("/process_video", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        document.getElementById("video").src =
+            data.video_url + "?t=" + new Date().getTime();
+
+        document.getElementById("videoText").innerText =
+            "Вешалки: " + (data.hanger_detected ? "ДА" : "НЕТ");
+    }
+
+</script>
+
+</body>
+</html>
